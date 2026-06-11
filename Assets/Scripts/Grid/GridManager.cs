@@ -60,7 +60,6 @@ public class GridManager : MonoBehaviour
                 -r * (cellSize + _gutterSize) + offset,
                 0f
             );
-            print(pos);
 
             var cell = Instantiate(_cellPrefab, pos, Quaternion.identity, transform);
             cell.transform.localScale *= cellSize / _gridWidth;

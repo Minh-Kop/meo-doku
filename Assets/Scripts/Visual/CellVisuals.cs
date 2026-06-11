@@ -70,7 +70,7 @@ public class CellVisuals : MonoBehaviour
     /// <summary>Pulse nhỏ khi đặt thỏ vào ô.</summary>
     public void PlayPlacePulse()
     {
-        if (_bunnyTransform == null)
+        if (!_bunnyTransform)
         {
             return;
         }
@@ -82,7 +82,7 @@ public class CellVisuals : MonoBehaviour
     /// <summary>Shrink nhanh khi gỡ thỏ ra.</summary>
     public void PlayRemovePulse()
     {
-        if (_bunnyTransform == null)
+        if (!_bunnyTransform)
         {
             return;
         }

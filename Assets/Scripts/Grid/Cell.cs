@@ -72,12 +72,17 @@ public class Cell : MonoBehaviour
     /// <summary>Double tap — toggle Bunny / Empty.</summary>
     public void PlaceBunny()
     {
-        if (CurrentState == State.Bunny)
-        {
-            _visuals.PlayRemovePulse();
-            SetState(State.Empty);
-        }
-        else
+        // if (CurrentState == State.Bunny)
+        // {
+        //     // _visuals.PlayRemovePulse();
+        //     SetState(State.Empty);
+        // }
+        // else
+        // {
+        //     SetState(State.Bunny);
+        //     // _visuals.PlayPlacePulse();
+        // }
+        if (CurrentState != State.Bunny)
         {
             SetState(State.Bunny);
             _visuals.PlayPlacePulse();
