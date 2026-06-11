@@ -27,19 +27,18 @@ namespace Visual
         [SerializeField]
         private float dragThreshold = 5f; // pixel — di chuyển quá ngưỡng này mới tính là drag
 
+        private HashSet<Cell> _draggedCells; // tránh mark lại Cell đã xử lý
+
         private InputSystem_Actions _inputActions;
 
         // ── Drag state ─────────────────────────────────────────────────────────
         private bool _isDragging;
-        private Cell _lastDraggedCell; // Cell cuối cùng đã được mark trong drag
         private Cell _lastTappedCell;
 
         // ── Tap state ──────────────────────────────────────────────────────────
         private float _lastTapTime;
 
         private Camera _mainCamera;
-
-        private HashSet<Cell> _markedThisDrag; // tránh mark lại Cell đã xử lý
         private InputAction _positionAction;
 
         private InputAction _pressAction;
@@ -100,10 +99,6 @@ namespace Visual
             _inputActions.Player.Disable();
         }
 
-        // ── Tap / Double-tap ──────────────────────────────────────────────────
-
-        // ── Drag move ─────────────────────────────────────────────────────────
-
         private void OnPressPerformed(InputAction.CallbackContext context)
         {
             if (GameManager.Instance != null && GameManager.Instance.IsGameOver)
@@ -113,8 +108,7 @@ namespace Visual
 
             _pressStartPosition = _positionAction.ReadValue<Vector2>();
             _isDragging = false;
-            _markedThisDrag = new HashSet<Cell>();
-            _lastDraggedCell = null;
+            _draggedCells = new HashSet<Cell>();
         }
 
         private void OnPressCanceled(InputAction.CallbackContext ctx)
@@ -127,14 +121,11 @@ namespace Visual
             if (!_isDragging)
             {
                 // Không drag → xử lý như tap / double-tap
-                var releasePos = _positionAction.ReadValue<Vector2>();
-                HandleTap(releasePos);
+                HandleTap(_pressStartPosition);
             }
 
             // Kết thúc drag session
-            _isDragging = false;
-            _lastDraggedCell = null;
-            _markedThisDrag?.Clear();
+            _draggedCells?.Clear();
         }
 
         private void HandleDragMove(Vector2 screenPos)
@@ -147,7 +138,7 @@ namespace Visual
                 return;
             }
 
-            if (!_markedThisDrag.Add(cell))
+            if (!_draggedCells.Add(cell))
             {
                 return;
             }
@@ -157,8 +148,6 @@ namespace Visual
             {
                 cell.CycleState(); // Empty → Marked
             }
-
-            _lastDraggedCell = cell;
         }
 
         private void HandleTap(Vector2 screenPos)
@@ -185,38 +174,6 @@ namespace Visual
             _lastTappedCell = cell;
 
             // _solverValidator.Validate(_gridManager.Cells);
-        }
-
-        private void ProcessTap(Vector2 worldPos)
-        {
-            var cell = GetCellAt(worldPos);
-            if (!cell)
-            {
-                return;
-            }
-
-            var timeSinceLast = Time.time - _lastTapTime;
-            var isDoubleTap = cell == _lastTappedCell && timeSinceLast < _doubleTapThreshold;
-
-            if (isDoubleTap)
-            {
-                cell.PlaceBunny();
-            }
-            else
-            {
-                cell.CycleState();
-            }
-
-            _lastTapTime = Time.time;
-            _lastTappedCell = cell;
-
-            // solverValidator.Validate(gridManager.Cells);
-        }
-
-        private Cell GetCellAt(Vector2 worldPos)
-        {
-            var hit = Physics2D.OverlapPoint(worldPos);
-            return hit ? hit.GetComponent<Cell>() : null;
         }
 
         private Cell GetCellAtScreenPos(Vector2 screenPos)
