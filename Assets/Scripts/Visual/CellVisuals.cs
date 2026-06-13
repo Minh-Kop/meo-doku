@@ -79,18 +79,6 @@ public class CellVisuals : MonoBehaviour
         StartCoroutine(PulseRoutine(_bunnyTransform, _pulseScale, _pulseDuration));
     }
 
-    /// <summary>Shrink nhanh khi gỡ thỏ ra.</summary>
-    public void PlayRemovePulse()
-    {
-        if (!_bunnyTransform)
-        {
-            return;
-        }
-
-        StopAllAnimOnBunny();
-        StartCoroutine(PulseRoutine(_bunnyTransform, 0f, _pulseDuration * 0.5f));
-    }
-
     // ── Error Feedback ─────────────────────────────────────────────────────
 
     /// <summary>Flash đỏ nền ô khi vi phạm luật.</summary>

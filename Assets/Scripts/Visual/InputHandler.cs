@@ -28,6 +28,7 @@ namespace Visual
         private float dragThreshold = 5f; // pixel — di chuyển quá ngưỡng này mới tính là drag
 
         private HashSet<Cell> _draggedCells; // tránh mark lại Cell đã xử lý
+        private Cell _firstDraggedCell;
 
         private InputSystem_Actions _inputActions;
 
@@ -133,18 +134,13 @@ namespace Visual
             var cell = GetCellAtScreenPos(screenPos);
 
             // Bỏ qua nếu không trúng ô nào, hoặc cùng ô vừa xử lý
-            if (!cell)
-            {
-                return;
-            }
-
-            if (!_draggedCells.Add(cell))
+            if (!cell || !_draggedCells.Add(cell))
             {
                 return;
             }
 
             // Chỉ mark ô trống — không gỡ thỏ đã đặt khi kéo qua
-            if (cell.CurrentState == Cell.State.Empty)
+            if (cell.CurrentState is Cell.State.Empty or Cell.State.Marked)
             {
                 cell.CycleState(); // Empty → Marked
             }
@@ -163,7 +159,7 @@ namespace Visual
 
             if (isDoubleTap)
             {
-                cell.PlaceBunny();
+                _solverValidator.Validate(_gridManager.Cells, _gridManager.Result, cell);
             }
             else
             {
@@ -172,15 +168,52 @@ namespace Visual
 
             _lastTapTime = Time.time;
             _lastTappedCell = cell;
-
-            // _solverValidator.Validate(_gridManager.Cells);
         }
 
         private Cell GetCellAtScreenPos(Vector2 screenPos)
         {
             Vector2 worldPos = _mainCamera.ScreenToWorldPoint(screenPos);
-            var hit = Physics2D.OverlapPoint(worldPos);
-            return hit ? hit.GetComponent<Cell>() : null;
+
+            if (
+                worldPos.x < _gridManager.GridOriginInWorldSpace.x
+                || worldPos.y > _gridManager.GridOriginInWorldSpace.y
+                || worldPos.x
+                    > _gridManager.GridOriginInWorldSpace.x
+                        + _gridManager.GridSize
+                        - _gridManager.GridGutter
+                || worldPos.y
+                    < _gridManager.GridOriginInWorldSpace.y
+                        - _gridManager.GridSize
+                        + _gridManager.GridGutter
+            )
+            {
+                return null;
+            }
+
+            var gridPos = new Vector2(
+                worldPos.x - _gridManager.GridOriginInWorldSpace.x,
+                worldPos.y - _gridManager.GridOriginInWorldSpace.y
+            );
+
+            var row = Mathf.FloorToInt(
+                -gridPos.y / (_gridManager.GridCellSize + _gridManager.GridGutter)
+            );
+            var col = Mathf.FloorToInt(
+                gridPos.x / (_gridManager.GridCellSize + _gridManager.GridGutter)
+            );
+            if (
+                gridPos.x
+                    < col * (_gridManager.GridCellSize + _gridManager.GridGutter)
+                        + _gridManager.GridGutter
+                || gridPos.y
+                    > -row * (_gridManager.GridCellSize + _gridManager.GridGutter)
+                        - _gridManager.GridGutter
+            )
+            {
+                return null;
+            }
+
+            return _gridManager.Cells[row, col];
         }
     }
 }

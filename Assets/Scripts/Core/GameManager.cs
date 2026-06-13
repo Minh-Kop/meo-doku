@@ -1,3 +1,4 @@
+using Core;
 using UnityEngine;
 
 /// <summary>
@@ -64,7 +65,8 @@ public class GameManager : MonoBehaviour
 
         _gridManager.ClearGrid();
         _gridManager.BuildGrid(puzzle);
-        // _borderRenderer.DrawBorders(_gridManager.Cells, _gridManager.CellSize);
+
+        _gridManager.Result = PuzzleSolver.FindSolution(puzzle);
 
         // _uiManager.RefreshAll(MistakesLeft, _maxMistakes);
         // _uiManager.HideWinScreen();
@@ -119,7 +121,7 @@ public class GameManager : MonoBehaviour
 
         hint.PlaceBunny();
         _hintsUsed++;
-        _solverValidator.Validate(_gridManager.Cells);
+        // _solverValidator.Validate(_gridManager.Cells);
     }
 
     /// <summary>Nút Restart trên UI gọi hàm này.</summary>

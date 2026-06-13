@@ -5,12 +5,10 @@ using UnityEngine;
 ///     Mỗi ô có 3 trạng thái: Empty → Marked (X) → Bunny
 ///     Yêu cầu trên cùng GameObject:
 ///     • SpriteRenderer  (bg)
-///     • BoxCollider2D   (để InputHandler detect click)
 ///     • CellVisuals     (visual feedback)
 ///     • GameObject con tên "XMark"    (sprite dấu X)
 ///     • GameObject con tên "Bunny"    (sprite con thỏ)
 /// </summary>
-[RequireComponent(typeof(BoxCollider2D))]
 [RequireComponent(typeof(CellVisuals))]
 public class Cell : MonoBehaviour
 {
@@ -18,6 +16,7 @@ public class Cell : MonoBehaviour
     {
         Empty,
         Marked,
+        Wrong,
         Bunny,
     }
 
@@ -27,6 +26,9 @@ public class Cell : MonoBehaviour
 
     [SerializeField]
     private GameObject _xMark;
+
+    [SerializeField]
+    private GameObject _wrongXMark;
 
     [SerializeField]
     private GameObject _bunnyObject;
@@ -69,19 +71,19 @@ public class Cell : MonoBehaviour
         SetState(CurrentState == State.Marked ? State.Empty : State.Marked);
     }
 
+    public void ChangeState(State newState)
+    {
+        if (CurrentState == State.Bunny || CurrentState == State.Wrong)
+        {
+            return; // tap không ảnh hưởng ô đã có thỏ
+        }
+
+        SetState(newState);
+    }
+
     /// <summary>Double tap — toggle Bunny / Empty.</summary>
     public void PlaceBunny()
     {
-        // if (CurrentState == State.Bunny)
-        // {
-        //     // _visuals.PlayRemovePulse();
-        //     SetState(State.Empty);
-        // }
-        // else
-        // {
-        //     SetState(State.Bunny);
-        //     // _visuals.PlayPlacePulse();
-        // }
         if (CurrentState != State.Bunny)
         {
             SetState(State.Bunny);
@@ -103,6 +105,8 @@ public class Cell : MonoBehaviour
         {
             _visuals.ResetColor();
         }
+
+        ChangeState(State.Wrong);
     }
 
     // ── Private ────────────────────────────────────────────────────────────
@@ -113,6 +117,11 @@ public class Cell : MonoBehaviour
         if (_xMark)
         {
             _xMark.SetActive(newState == State.Marked);
+        }
+
+        if (_wrongXMark)
+        {
+            _wrongXMark.SetActive(newState == State.Wrong);
         }
 
         if (_bunnyObject)

@@ -31,14 +31,22 @@ public class GridManager : MonoBehaviour
     [SerializeField]
     private float _gutterSize = 0.1f;
 
-    private float _gridWidth;
+    public float GridCellSize { get; private set; }
+
+    public float GridSize { get; private set; }
+
+    public float GridGutter => _gutterSize;
+
+    public Vector2 GridOriginInWorldSpace { get; private set; }
+
+    public int[] Result { get; set; }
 
     // ── Public ─────────────────────────────────────────────────────────────
     public Cell[,] Cells { get; private set; }
 
     private void Awake()
     {
-        _gridWidth = transform.localScale.x;
+        GridSize = transform.localScale.x;
     }
 
     // ──────────────────────────────────────────────────────────────────────
@@ -49,20 +57,20 @@ public class GridManager : MonoBehaviour
         var n = puzzle.gridSize;
         Cells = new Cell[n, n];
 
-        var cellSize = (_gridWidth - _gutterSize * (n - 1 + 2)) / n;
-        var offset = (n - 1) * 0.5f * (cellSize + _gutterSize);
+        GridCellSize = (GridSize - _gutterSize * (n - 1 + 2)) / n;
+        var offset = (n - 1) * 0.5f * (GridCellSize + _gutterSize);
 
         for (var r = 0; r < n; r++)
         for (var c = 0; c < n; c++)
         {
             var pos = new Vector3(
-                c * (cellSize + _gutterSize) - offset,
-                -r * (cellSize + _gutterSize) + offset,
+                c * (GridCellSize + _gutterSize) - offset,
+                -r * (GridCellSize + _gutterSize) + offset,
                 0f
             );
 
             var cell = Instantiate(_cellPrefab, pos, Quaternion.identity, transform);
-            cell.transform.localScale *= cellSize / _gridWidth;
+            cell.transform.localScale *= GridCellSize / GridSize;
 
             var regionId = puzzle.regionMap[r * n + c];
             var color = RegionColors[regionId % RegionColors.Length];
@@ -70,6 +78,11 @@ public class GridManager : MonoBehaviour
 
             Cells[r, c] = cell;
         }
+
+        GridOriginInWorldSpace = new Vector2(
+            transform.position.x - GridSize * 0.5f,
+            transform.position.y + GridSize * 0.5f
+        );
     }
 
     /// <summary>Xóa toàn bộ Cell con — gọi trước khi load level mới.</summary>

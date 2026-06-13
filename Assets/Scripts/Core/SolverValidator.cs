@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -13,6 +12,7 @@ using UnityEngine;
 /// </summary>
 public class SolverValidator : MonoBehaviour
 {
+    private int _bunnyCount;
     public static SolverValidator Instance { get; private set; }
 
     private void Awake()
@@ -31,85 +31,29 @@ public class SolverValidator : MonoBehaviour
     /// <summary>
     ///     Validate toàn bộ board, highlight ô sai, và gọi GameManager khi cần.
     /// </summary>
-    public void Validate(Cell[,] cells)
+    public void Validate(Cell[,] cells, int[] result, Cell currentCell)
     {
-        if (cells == null)
+        if (cells == null || result == null || !currentCell)
         {
             return;
         }
 
         var n = cells.GetLength(0);
 
-        // Reset tất cả error trước
-        foreach (var c in cells)
+        if (currentCell.Col != result[currentCell.Row])
         {
-            c.SetError(false);
-        }
+            currentCell.SetError(true);
 
-        // Thu thập các ô đang có thỏ
-        var bunnies = new List<Cell>();
-        foreach (var c in cells)
-        {
-            if (c.CurrentState == Cell.State.Bunny)
-            {
-                bunnies.Add(c);
-            }
-        }
-
-        var anyNewMistake = false;
-
-        foreach (var b in bunnies)
-        {
-            var error = false;
-
-            // Luật 1: hàng
-            if (bunnies.Count(x => x.Row == b.Row) > 1)
-            {
-                error = true;
-            }
-
-            // Luật 2: cột
-            if (bunnies.Count(x => x.Col == b.Col) > 1)
-            {
-                error = true;
-            }
-
-            // Luật 3: region
-            if (bunnies.Count(x => x.RegionId == b.RegionId) > 1)
-            {
-                error = true;
-            }
-
-            // Luật 4: adjacency (8 hướng)
-            foreach (var other in bunnies)
-            {
-                if (other == b)
-                {
-                    continue;
-                }
-
-                if (Mathf.Abs(other.Row - b.Row) <= 1 && Mathf.Abs(other.Col - b.Col) <= 1)
-                {
-                    error = true;
-                    break;
-                }
-            }
-
-            if (error)
-            {
-                b.SetError(true);
-                anyNewMistake = true;
-            }
-        }
-
-        // Thông báo GameManager nếu có lỗi
-        if (anyNewMistake)
-        {
             GameManager.Instance?.OnMistake();
+        }
+        else
+        {
+            _bunnyCount++;
+            currentCell.PlaceBunny();
         }
 
         // Win condition: đủ N thỏ và không có lỗi nào
-        if (bunnies.Count == n && bunnies.All(b => !b.IsError))
+        if (_bunnyCount == n)
         {
             GameManager.Instance?.OnWin();
         }
