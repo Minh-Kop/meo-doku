@@ -149,7 +149,11 @@ namespace Visual
         private void HandleTap(Vector2 screenPos)
         {
             var cell = GetCellAtScreenPos(screenPos);
-            if (!cell)
+            if (
+                !cell
+                || cell.CurrentState == Cell.State.Wrong
+                || cell.CurrentState == Cell.State.Bunny
+            )
             {
                 return;
             }
@@ -159,7 +163,7 @@ namespace Visual
 
             if (isDoubleTap)
             {
-                _solverValidator.Validate(_gridManager.Cells, _gridManager.Result, cell);
+                _solverValidator.Validate(_gridManager.Cells, _gridManager.BunnyCellResult, cell);
             }
             else
             {

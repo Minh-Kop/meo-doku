@@ -12,7 +12,6 @@ using UnityEngine;
 /// </summary>
 public class SolverValidator : MonoBehaviour
 {
-    private int _bunnyCount;
     public static SolverValidator Instance { get; private set; }
 
     private void Awake()
@@ -43,17 +42,16 @@ public class SolverValidator : MonoBehaviour
         if (currentCell.Col != result[currentCell.Row])
         {
             currentCell.SetError(true);
-
             GameManager.Instance?.OnMistake();
         }
         else
         {
-            _bunnyCount++;
             currentCell.PlaceBunny();
+            GameManager.Instance?.UpdateBunnyCount();
         }
 
         // Win condition: đủ N thỏ và không có lỗi nào
-        if (_bunnyCount == n)
+        if (GameManager.Instance?.BunnyCount == n)
         {
             GameManager.Instance?.OnWin();
         }

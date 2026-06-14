@@ -9,18 +9,18 @@ public class GridManager : MonoBehaviour
     // Màu cho từng region (tối đa 12 region cho lưới 12×12)
     private static readonly Color[] RegionColors =
     {
-        new(1.00f, 0.82f, 0.82f), // hồng
-        new(0.82f, 1.00f, 0.82f), // xanh lá
-        new(0.82f, 0.88f, 1.00f), // xanh dương
-        new(1.00f, 1.00f, 0.78f), // vàng
-        new(0.94f, 0.82f, 1.00f), // tím nhạt
-        new(0.82f, 1.00f, 0.98f), // cyan nhạt
-        new(1.00f, 0.90f, 0.78f), // cam nhạt
-        new(0.78f, 1.00f, 0.88f), // mint
-        new(1.00f, 0.78f, 0.90f), // hồng đậm
-        new(0.88f, 0.96f, 0.78f), // xanh lá nhạt
-        new(0.78f, 0.90f, 1.00f), // lavender
-        new(1.00f, 0.96f, 0.82f), // kem
+        new(1.00f, 0.45f, 0.45f), // hồng
+        new(0.35f, 0.90f, 0.35f), // xanh lá
+        new(0.40f, 0.60f, 1.00f), // xanh dương
+        new(1.00f, 0.65f, 0.20f), // cam
+        new(0.80f, 0.40f, 1.00f), // tím
+        new(0.20f, 0.95f, 0.85f), // cyan
+        new(0.25f, 1.00f, 0.60f), // mint
+        new(1.00f, 0.30f, 0.65f), // hồng đậm
+        new(0.65f, 1.00f, 0.20f), // xanh lá nhạt
+        new(0.50f, 0.55f, 1.00f), // lavender
+        new(1.00f, 0.95f, 0.20f), // vàng
+        new(1.00f, 0.88f, 0.30f), // kem/vàng nhạt
     };
 
     [Header("Prefab")]
@@ -39,7 +39,7 @@ public class GridManager : MonoBehaviour
 
     public Vector2 GridOriginInWorldSpace { get; private set; }
 
-    public int[] Result { get; set; }
+    public int[] BunnyCellResult { get; set; }
 
     // ── Public ─────────────────────────────────────────────────────────────
     public Cell[,] Cells { get; private set; }
@@ -69,8 +69,9 @@ public class GridManager : MonoBehaviour
                 0f
             );
 
-            var cell = Instantiate(_cellPrefab, pos, Quaternion.identity, transform);
+            var cell = Instantiate(_cellPrefab, transform);
             cell.transform.localScale *= GridCellSize / GridSize;
+            cell.transform.localPosition = pos / GridSize;
 
             var regionId = puzzle.regionMap[r * n + c];
             var color = RegionColors[regionId % RegionColors.Length];
@@ -78,6 +79,16 @@ public class GridManager : MonoBehaviour
 
             Cells[r, c] = cell;
         }
+
+        foreach (var c in puzzle.revealCells)
+        {
+            var row = Mathf.FloorToInt(c / n);
+            var col = c - row * n;
+
+            Cells[row, col].ChangeState(Cell.State.Bunny);
+        }
+
+        BunnyCellResult = puzzle.solutionCells;
 
         GridOriginInWorldSpace = new Vector2(
             transform.position.x - GridSize * 0.5f,

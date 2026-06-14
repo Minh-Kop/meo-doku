@@ -73,11 +73,6 @@ public class Cell : MonoBehaviour
 
     public void ChangeState(State newState)
     {
-        if (CurrentState == State.Bunny || CurrentState == State.Wrong)
-        {
-            return; // tap không ảnh hưởng ô đã có thỏ
-        }
-
         SetState(newState);
     }
 
@@ -96,6 +91,8 @@ public class Cell : MonoBehaviour
     /// <summary>Gọi từ SolverValidator để highlight lỗi.</summary>
     public void SetError(bool error)
     {
+        SetState(State.Wrong);
+
         IsError = error;
         if (error)
         {
@@ -105,8 +102,6 @@ public class Cell : MonoBehaviour
         {
             _visuals.ResetColor();
         }
-
-        ChangeState(State.Wrong);
     }
 
     // ── Private ────────────────────────────────────────────────────────────

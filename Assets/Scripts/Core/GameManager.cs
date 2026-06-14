@@ -1,4 +1,3 @@
-using Core;
 using UnityEngine;
 
 /// <summary>
@@ -14,19 +13,21 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private SolverValidator _solverValidator;
 
+    [SerializeField]
+    private UIManager _uiManager;
+
     [Header("Settings")]
     [SerializeField]
     private int _maxMistakes = 3;
 
     private int _hintsUsed;
 
-    private UIManager _uiManager;
-
     public static GameManager Instance { get; private set; }
 
     // ── State ──────────────────────────────────────────────────────────────
     public PuzzleData CurrentPuzzle { get; private set; }
     public int MistakesLeft { get; private set; }
+    public int BunnyCount { get; private set; }
     public bool IsGameOver { get; private set; }
 
     // ──────────────────────────────────────────────────────────────────────
@@ -66,11 +67,14 @@ public class GameManager : MonoBehaviour
         _gridManager.ClearGrid();
         _gridManager.BuildGrid(puzzle);
 
-        _gridManager.Result = PuzzleSolver.FindSolution(puzzle);
+        BunnyCount = puzzle.revealCells.Length;
 
-        // _uiManager.RefreshAll(MistakesLeft, _maxMistakes);
-        // _uiManager.HideWinScreen();
-        // _uiManager.HideGameOverScreen();
+        // _gridManager.Result = PuzzleSolver.FindSolution(puzzle);
+
+        _uiManager.RefreshAll(MistakesLeft, _maxMistakes);
+        _uiManager.UpdateBunnyCounter(BunnyCount);
+        _uiManager.HideWinScreen();
+        _uiManager.HideGameOverScreen();
     }
 
     /// <summary>Gọi từ SolverValidator mỗi khi người chơi đặt thỏ sai.</summary>
@@ -99,9 +103,14 @@ public class GameManager : MonoBehaviour
         }
 
         IsGameOver = true;
-        LevelManager.Instance.MarkCurrentLevelComplete();
-        WinAnimator.Instance.PlayWinWave();
-        _uiManager.ShowWinScreen(_hintsUsed, MistakesLeft);
+        // WinAnimator.Instance.PlayWinWave();
+        _uiManager.ShowWinScreen();
+    }
+
+    public void UpdateBunnyCount()
+    {
+        BunnyCount++;
+        _uiManager.UpdateBunnyCounter(BunnyCount);
     }
 
     /// <summary>Nút Hint trên UI gọi hàm này.</summary>

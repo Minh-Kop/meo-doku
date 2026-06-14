@@ -17,60 +17,56 @@ public class UIManager : MonoBehaviour
     [Header("Mistake Counter")]
     [Tooltip("Các Image trái tim — đủ số lượng bằng maxMistakes.")]
     [SerializeField]
-    private Image[] heartIcons;
+    private Image[] _heartIcons;
 
     [SerializeField]
-    private Sprite heartFull;
+    private Sprite _heartFull;
 
     [SerializeField]
-    private Sprite heartEmpty;
+    private Sprite _heartEmpty;
+
+    [SerializeField]
+    private TextMeshProUGUI _bunnyCounter;
 
     // ── Win Screen ─────────────────────────────────────────────────────────
     [Header("Win Screen")]
     [SerializeField]
-    private GameObject winScreenPanel;
+    private GameObject _winScreenPanel;
 
     [SerializeField]
-    private TextMeshProUGUI winTitleText;
+    private Button _nextLevelButton;
 
     [SerializeField]
-    private TextMeshProUGUI winStatsText; // "0 hints · 3 hearts left"
-
-    [SerializeField]
-    private Button nextLevelButton;
-
-    [SerializeField]
-    private Button restartFromWinButton;
+    private TextMeshProUGUI _nextLevelButtonText;
 
     // ── Game Over Screen ───────────────────────────────────────────────────
     [Header("Game Over Screen")]
     [SerializeField]
-    private GameObject gameOverPanel;
+    private GameObject _gameOverPanel;
 
     [SerializeField]
-    private Button retryButton;
+    private Button _retryButton;
 
     // ── Level Info ─────────────────────────────────────────────────────────
     [Header("Level Info")]
     [SerializeField]
-    private TextMeshProUGUI levelLabel; // "Level 12"
+    private TextMeshProUGUI _levelLabel; // "Level 12"
 
     // ── Toast ──────────────────────────────────────────────────────────────
     [Header("Toast")]
     [SerializeField]
-    private GameObject toastPanel;
+    private GameObject _toastPanel;
 
     [SerializeField]
-    private TextMeshProUGUI toastText;
+    private TextMeshProUGUI _toastText;
 
     [SerializeField]
-    private float toastDuration = 2f;
+    private float _toastDuration = 2f;
 
-    private Coroutine toastCoroutine;
+    private Coroutine _toastCoroutine;
     public static UIManager Instance { get; private set; }
 
     // ──────────────────────────────────────────────────────────────────────
-
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -85,137 +81,95 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         // Nối nút với GameManager
-        if (nextLevelButton)
-        {
-            nextLevelButton.onClick.AddListener(GameManager.Instance.NextLevel);
-        }
-
-        if (retryButton)
-        {
-            retryButton.onClick.AddListener(GameManager.Instance.RestartLevel);
-        }
-
-        if (restartFromWinButton)
-        {
-            restartFromWinButton.onClick.AddListener(GameManager.Instance.RestartLevel);
-        }
+        _nextLevelButton.onClick.AddListener(GameManager.Instance.NextLevel);
+        _retryButton.onClick.AddListener(GameManager.Instance.RestartLevel);
 
         HideWinScreen();
         HideGameOverScreen();
-        if (toastPanel)
+        if (_toastPanel)
         {
-            toastPanel.SetActive(false);
+            _toastPanel.SetActive(false);
         }
     }
 
     // ── Public API ─────────────────────────────────────────────────────────
-
     /// <summary>Cập nhật toàn bộ UI khi load level mới.</summary>
     public void RefreshAll(int mistakesLeft, int maxMistakes)
     {
         UpdateMistakes(mistakesLeft, maxMistakes);
 
-        if (levelLabel)
-        {
-            levelLabel.text = $"Level {LevelManager.Instance.CurrentLevelIndex + 1}";
-        }
+        _levelLabel.text = $"Level {LevelManager.Instance.CurrentLevelIndex + 1}";
     }
 
     /// <summary>Cập nhật hình trái tim theo số lần sai còn lại.</summary>
     public void UpdateMistakes(int mistakesLeft, int maxMistakes)
     {
-        for (var i = 0; i < heartIcons.Length; i++)
+        for (var i = 0; i < _heartIcons.Length; i++)
         {
-            if (heartIcons[i] == null)
+            if (_heartIcons[i] == null)
             {
                 continue;
             }
 
-            heartIcons[i].sprite = i < mistakesLeft ? heartFull : heartEmpty;
+            _heartIcons[i].sprite = i < mistakesLeft ? _heartFull : _heartEmpty;
         }
     }
 
-    // ── Win Screen ─────────────────────────────────────────────────────────
-
-    public void ShowWinScreen(int hintsUsed, int mistakesLeft)
+    public void UpdateBunnyCounter(int bunnyCount)
     {
-        if (!winScreenPanel)
-        {
-            return;
-        }
+        _bunnyCounter.text =
+            $"<color=#00C517>{bunnyCount}</color>/{GameManager.Instance.CurrentPuzzle.gridSize}";
+    }
 
-        winScreenPanel.SetActive(true);
-
-        if (winTitleText)
-        {
-            winTitleText.text = "🐰 Solved!";
-        }
-
-        if (winStatsText)
-        {
-            var hintStr =
-                hintsUsed == 0 ? "No hints" : $"{hintsUsed} hint{(hintsUsed > 1 ? "s" : "")}";
-            var heartStr = mistakesLeft == 0 ? "No hearts" : $"{mistakesLeft} ❤ left";
-            winStatsText.text = $"{hintStr}  ·  {heartStr}";
-        }
+    // ── Win Screen ─────────────────────────────────────────────────────────
+    public void ShowWinScreen()
+    {
+        _winScreenPanel.SetActive(true);
 
         // Ẩn Next Level nếu đây là level cuối
-        if (nextLevelButton)
-        {
-            nextLevelButton.gameObject.SetActive(
-                LevelManager.Instance.CurrentLevelIndex < LevelManager.Instance.TotalLevels - 1
-            );
-        }
+        _nextLevelButton.gameObject.SetActive(
+            LevelManager.Instance.CurrentLevelIndex < LevelManager.Instance.TotalLevels - 1
+        );
+        _nextLevelButtonText.text = $"Level {LevelManager.Instance.CurrentLevelIndex + 2}";
     }
 
     public void HideWinScreen()
     {
-        if (winScreenPanel)
-        {
-            winScreenPanel.SetActive(false);
-        }
+        _winScreenPanel.SetActive(false);
     }
 
     // ── Game Over Screen ───────────────────────────────────────────────────
-
     public void ShowGameOverScreen()
     {
-        if (gameOverPanel)
-        {
-            gameOverPanel.SetActive(true);
-        }
+        _gameOverPanel.SetActive(true);
     }
 
     public void HideGameOverScreen()
     {
-        if (gameOverPanel)
-        {
-            gameOverPanel.SetActive(false);
-        }
+        _gameOverPanel.SetActive(false);
     }
 
     // ── Toast ──────────────────────────────────────────────────────────────
-
     public void ShowToast(string message)
     {
-        if (!toastPanel || !toastText)
+        if (!_toastPanel || !_toastText)
         {
             return;
         }
 
-        if (toastCoroutine != null)
+        if (_toastCoroutine != null)
         {
-            StopCoroutine(toastCoroutine);
+            StopCoroutine(_toastCoroutine);
         }
 
-        toastCoroutine = StartCoroutine(ToastRoutine(message));
+        _toastCoroutine = StartCoroutine(ToastRoutine(message));
     }
 
     private IEnumerator ToastRoutine(string message)
     {
-        toastText.text = message;
-        toastPanel.SetActive(true);
-        yield return new WaitForSeconds(toastDuration);
-        toastPanel.SetActive(false);
+        _toastText.text = message;
+        _toastPanel.SetActive(true);
+        yield return new WaitForSeconds(_toastDuration);
+        _toastPanel.SetActive(false);
     }
 }

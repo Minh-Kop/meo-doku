@@ -17,4 +17,12 @@ public class PuzzleData : ScriptableObject
         "Flat array kích thước gridSize*gridSize. regionMap[row * gridSize + col] = regionId."
     )]
     public int[] regionMap;
+
+    [Tooltip("Các ô được lộ sẵn (đáp án cho trước). Flat: revealCells[i*2]=row, +1=col.")]
+    public int[] revealCells;
+
+    [Tooltip("Đáp án đầy đủ. Flat: solutionCells[i*2]=row, +1=col.")]
+    public int[] solutionCells;
+
+    public int[] steps;
 }
