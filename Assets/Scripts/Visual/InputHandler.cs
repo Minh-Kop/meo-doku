@@ -28,6 +28,7 @@ namespace Visual
         private float dragThreshold = 5f; // pixel — di chuyển quá ngưỡng này mới tính là drag
 
         private HashSet<Cell> _draggedCells; // tránh mark lại Cell đã xử lý
+        private Cell.State? _draggedCellState; // nullable to represent "not initialized"
         private Cell _firstDraggedCell;
 
         private InputSystem_Actions _inputActions;
@@ -127,6 +128,7 @@ namespace Visual
 
             // Kết thúc drag session
             _draggedCells?.Clear();
+            _draggedCellState = null;
         }
 
         private void HandleDragMove(Vector2 screenPos)
@@ -139,11 +141,18 @@ namespace Visual
                 return;
             }
 
-            // Chỉ mark ô trống — không gỡ thỏ đã đặt khi kéo qua
-            if (cell.CurrentState is Cell.State.Empty or Cell.State.Marked)
+            if (cell.CurrentState is Cell.State.Wrong or Cell.State.Bunny)
             {
-                cell.CycleState(); // Empty → Marked
+                return;
             }
+
+            if (_draggedCellState == null) // nullable check
+            {
+                _draggedCellState =
+                    cell.CurrentState == Cell.State.Empty ? Cell.State.Marked : Cell.State.Empty;
+            }
+
+            cell.ChangeState(_draggedCellState.Value); // use .Value to unwrap the nullable
         }
 
         private void HandleTap(Vector2 screenPos)
