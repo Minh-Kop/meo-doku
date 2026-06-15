@@ -31,11 +31,21 @@ public class GridManager : MonoBehaviour
     [SerializeField]
     private float _gutterSize = 0.1f;
 
+    [SerializeField]
+    private float _gridPadding = 0.3f;
+
+    [SerializeField]
+    private float _gridSize = 5.5f;
+
+    private SpriteRenderer _gridRenderer;
+
     public float GridCellSize { get; private set; }
 
-    public float GridSize { get; private set; }
+    public float GridSize => _gridSize;
 
     public float GridGutter => _gutterSize;
+
+    public float GridPadding => _gridPadding;
 
     public Vector2 GridOriginInWorldSpace { get; private set; }
 
@@ -46,7 +56,8 @@ public class GridManager : MonoBehaviour
 
     private void Awake()
     {
-        GridSize = transform.localScale.x;
+        _gridRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
+        _gridRenderer.size = new Vector2(_gridSize, _gridSize);
     }
 
     // ──────────────────────────────────────────────────────────────────────
@@ -57,7 +68,7 @@ public class GridManager : MonoBehaviour
         var n = puzzle.gridSize;
         Cells = new Cell[n, n];
 
-        GridCellSize = (GridSize - _gutterSize * (n - 1 + 2)) / n;
+        GridCellSize = (_gridSize - _gridPadding * 2 - _gutterSize * (n - 1)) / n;
         var offset = (n - 1) * 0.5f * (GridCellSize + _gutterSize);
 
         for (var r = 0; r < n; r++)
@@ -70,8 +81,8 @@ public class GridManager : MonoBehaviour
             );
 
             var cell = Instantiate(_cellPrefab, transform);
-            cell.transform.localScale *= GridCellSize / GridSize;
-            cell.transform.localPosition = pos / GridSize;
+            cell.transform.localScale *= GridCellSize;
+            cell.transform.localPosition = pos;
 
             var regionId = puzzle.regionMap[r * n + c];
             var color = RegionColors[regionId % RegionColors.Length];
@@ -91,8 +102,8 @@ public class GridManager : MonoBehaviour
         BunnyCellResult = puzzle.solutionCells;
 
         GridOriginInWorldSpace = new Vector2(
-            transform.position.x - GridSize * 0.5f,
-            transform.position.y + GridSize * 0.5f
+            transform.position.x - _gridSize * 0.5f + _gridPadding,
+            transform.position.y + _gridSize * 0.5f - _gridPadding
         );
     }
 

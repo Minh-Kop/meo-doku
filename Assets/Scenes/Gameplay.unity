@@ -4603,8 +4603,8 @@ Transform:
   m_GameObject: {fileID: 1872827417}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.016, z: 0}
-  m_LocalScale: {x: 0.14843963, y: 0.14843963, z: 0.14843963}
+  m_LocalPosition: {x: 0, y: -0.1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 2051206132}
@@ -4663,7 +4663,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 7.1, y: 7.1}
+  m_Size: {x: 5.5, y: 5.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -4770,7 +4770,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.58, z: 0}
-  m_LocalScale: {x: 5.118442, y: 5.118442, z: 5.118442}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1872827418}
@@ -4790,6 +4790,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GridManager
   _cellPrefab: {fileID: 6945921506786975942, guid: 4de966b4939ab49ed956ffab8847d8db, type: 3}
   _gutterSize: 0.1
+  _gridPadding: 0.3
+  _gridSize: 5.5
 --- !u!1 &2060516241
 GameObject:
   m_ObjectHideFlags: 0

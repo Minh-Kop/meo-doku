@@ -193,11 +193,11 @@ namespace Visual
                 || worldPos.x
                     > _gridManager.GridOriginInWorldSpace.x
                         + _gridManager.GridSize
-                        - _gridManager.GridGutter
+                        - _gridManager.GridPadding * 2
                 || worldPos.y
                     < _gridManager.GridOriginInWorldSpace.y
                         - _gridManager.GridSize
-                        + _gridManager.GridGutter
+                        + _gridManager.GridPadding * 2
             )
             {
                 return null;
@@ -216,11 +216,11 @@ namespace Visual
             );
             if (
                 gridPos.x
-                    < col * (_gridManager.GridCellSize + _gridManager.GridGutter)
-                        + _gridManager.GridGutter
+                    > col * (_gridManager.GridCellSize + _gridManager.GridGutter)
+                        + _gridManager.GridCellSize
                 || gridPos.y
-                    > -row * (_gridManager.GridCellSize + _gridManager.GridGutter)
-                        - _gridManager.GridGutter
+                    < -row * (_gridManager.GridCellSize + _gridManager.GridGutter)
+                        - _gridManager.GridCellSize
             )
             {
                 return null;
