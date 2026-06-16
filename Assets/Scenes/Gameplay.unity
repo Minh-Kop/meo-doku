@@ -2368,8 +2368,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Visual.Test
   _gridManager: {fileID: 2051206133}
   _solverValidator: {fileID: 258420886}
-  _doubleTapThreshold: 0.3
-  dragThreshold: 5
+  _doubleTapThreshold: 0.45
+  dragThreshold: 30
 --- !u!1 &862122165
 GameObject:
   m_ObjectHideFlags: 0

@@ -65,6 +65,8 @@ public class GridManager : MonoBehaviour
     /// <summary>Xây dựng lưới từ PuzzleData.</summary>
     public void BuildGrid(PuzzleData puzzle)
     {
+        ScaleToFitScreen();
+
         var n = puzzle.gridSize;
         Cells = new Cell[n, n];
 
@@ -105,6 +107,33 @@ public class GridManager : MonoBehaviour
             transform.position.x - _gridSize * 0.5f + _gridPadding,
             transform.position.y + _gridSize * 0.5f - _gridPadding
         );
+    }
+
+    private void ScaleToFitScreen()
+    {
+        var cam = Camera.main;
+        var worldWidth = cam.orthographicSize * 2f * cam.aspect;
+        var worldHeight = cam.orthographicSize * 2f;
+
+        print($"Grid size: {_gridSize}");
+        print($"World size: {worldWidth} x {worldHeight}");
+
+        var scaleX = worldWidth / _gridSize;
+        var scaleY = worldHeight / _gridSize;
+
+        print($"ScaleX: {scaleX}, ScaleY: {scaleY}");
+
+        // Chọn cái nhỏ hơn để object không bị crop
+        var scale = Mathf.Min(scaleX, scaleY);
+        if (scale < 1f)
+        {
+            // transform.localScale *= scale * 0.98f;
+            scale *= 0.98f;
+            _gridRenderer.transform.localScale *= scale;
+            _gridSize *= scale;
+            _gutterSize *= scale;
+            _gridPadding *= scale;
+        }
     }
 
     /// <summary>Xóa toàn bộ Cell con — gọi trước khi load level mới.</summary>

@@ -46,6 +46,8 @@ namespace Visual
         private InputAction _pressAction;
         private Vector2 _pressStartPosition; // vị trí pixel lúc nhấn xuống
 
+        private float _pressStartTime;
+
         private void Awake()
         {
             _inputActions = new InputSystem_Actions();
@@ -111,6 +113,7 @@ namespace Visual
             _pressStartPosition = _positionAction.ReadValue<Vector2>();
             _isDragging = false;
             _draggedCells = new HashSet<Cell>();
+            _pressStartTime = Time.time;
         }
 
         private void OnPressCanceled(InputAction.CallbackContext ctx)
@@ -118,6 +121,12 @@ namespace Visual
             if (GameManager.Instance != null && GameManager.Instance.IsGameOver)
             {
                 return;
+            }
+
+            var pressDuration = Time.time - _pressStartTime;
+            if (pressDuration < 0.15f)
+            {
+                _isDragging = false;
             }
 
             if (!_isDragging)
